@@ -2,8 +2,6 @@
 package guru.springframework.api.domain;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;

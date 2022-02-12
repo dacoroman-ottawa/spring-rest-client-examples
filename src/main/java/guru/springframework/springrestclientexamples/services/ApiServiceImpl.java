@@ -1,10 +1,10 @@
 package guru.springframework.springrestclientexamples.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Arrays;
 
@@ -15,22 +15,21 @@ import guru.springframework.api.domain.User;
 @Service
 public class ApiServiceImpl implements ApiService {
 
-    private static final String BASE_URL = "https://jsonplaceholder.typicode.com/users?_limit=";
+    private RestTemplate restTemplate; 
+    private String api_url;  
 
-    private RestTemplate restTemplate;   
-
-    public ApiServiceImpl(RestTemplate restTemplate) {
+    public ApiServiceImpl(RestTemplate restTemplate, @Value("${api.url}") String api_url) {
         this.restTemplate = restTemplate;
+        this.api_url = api_url;
     }
 
     @Override
     public List<User> getUsers(Long limit) {
-        // UserData userData = restTemplate.getForObject("http://private-anon-25adba0643-apifaketory.apiary-mock.com/api/user?limit=" + limit, UserData.class);
-        // return userData.getData();
-        // UserList response = restTemplate.getForObject("https://jsonplaceholder.typicode.com/users?_limit=" + limit, UserList.class);
-        // return response.getUsers();
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder
+            .fromUriString(api_url)
+            .queryParam("_limit", limit);
 
-        ResponseEntity<User[]> response = restTemplate.getForEntity( BASE_URL + limit, User[].class);
+        ResponseEntity<User[]> response = restTemplate.getForEntity( uriBuilder.toUriString(), User[].class);
 
         User[] usersArray = response.getBody();
 
