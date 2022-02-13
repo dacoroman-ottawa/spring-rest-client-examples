@@ -30,19 +30,45 @@ public class UserController {
     @PostMapping("/users")
     public String formPost(Model model, ServerWebExchange serverWebExchange){
 
-        MultiValueMap<String, String> map = serverWebExchange.getFormData().block();
+        // MultiValueMap<String, String> map = serverWebExchange.getFormData().block();
 
-        Long limit = Long.parseLong(map.get("limit").get(0));
+        // Long limit = Long.parseLong(map.get("limit").get(0));
 
-        log.info("Received Limit value: " + limit);
-        //default if null or zero
-        if(limit == null || limit == 0){
-            log.info("Setting limit to default of 10");
-            limit = 10L;
-        }
+        // log.info("Received Limit value: " + limit);
+        // //default if null or zero
+        // if(limit == null || limit == 0){
+        //     log.info("Setting limit to default of 10");
+        //     limit = 10L;
+        // }
 
-        model.addAttribute("users", apiService.getUsers(limit));
+        // model.addAttribute("users", apiService.getUsers(limit));
 
+        model.addAttribute("users",
+            apiService.getUsers(
+                serverWebExchange
+                    .getFormData()
+                    // .map(data ->  Integer.parseInt(data.getFirst("limit"))
+                    .map(data -> {
+                        String limitInput = data.getFirst("limit");
+                        log.info("Received Mono Limit value: " + limitInput);
+                        Integer limit;
+                        try {
+                            limit = Integer.parseInt(limitInput);
+                        } catch (NumberFormatException e) {
+                            limit = 0;
+                        }
+                     
+                        //default if zero
+                        if (limit == 0) {
+                            log.info("Setting limit to default of 10");
+                            limit = 10;
+                        }
+                        return limit;
+                    }
+                )
+            )
+        );
+        
         return "userlist";
     }
 }
