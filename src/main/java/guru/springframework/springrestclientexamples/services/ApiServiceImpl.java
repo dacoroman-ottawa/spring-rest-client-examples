@@ -50,14 +50,17 @@ public class ApiServiceImpl implements ApiService {
 
         log.info("getUsers: Received Mono<Integer> limit value: " + limit.block());
 
-        return WebClient
-                .create(api_url)
-                .get()
-                .uri(uriBuilder -> uriBuilder.queryParam("limit", limit.block()).build())
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .flatMap(resp -> resp.bodyToMono(User[].class))
-                .flatMapIterable(Arrays::asList);
+        Flux<User> fluxUser = WebClient
+            .create(api_url)
+            .get()
+            .uri(uriBuilder -> uriBuilder.queryParam("limit", limit.block()).build())
+            .accept(MediaType.APPLICATION_JSON)
+            .exchange()
+            .flatMap(resp -> resp.bodyToMono(User.class))
+            .flatMapIterable(Arrays::asList)
+            ;
+
+        return fluxUser;
     }
     
 }
